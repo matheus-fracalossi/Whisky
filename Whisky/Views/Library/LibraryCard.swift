@@ -156,7 +156,7 @@ struct LibraryCard: View {
                     // start, and "The Elder Scro...Special Edition" reads worse
                     // than losing the edition suffix.
                     .truncationMode(.tail)
-                Text(subtitle)
+                subtitleText
                     .font(.caption)
                     .foregroundStyle(foreground.opacity(0.7))
                     .lineLimit(1)
@@ -236,23 +236,34 @@ struct LibraryCard: View {
         }
     }
 
+    /// The glass marks the first word as the bottle rather than the source.
+    private var subtitleText: Text {
+        guard bottleName != nil else { return Text(verbatim: subtitle) }
+        let glass = Image(systemName: "wineglass")
+        return Text("\(glass) \(subtitle)")
+    }
+
     /// Source first when it is not a pin, because "Steam" tells you why an entry
     /// is here at all, and a pin needs no explanation.
     private var subtitle: String {
         var parts: [String] = []
-        if item.isLauncher {
-            parts.append(String(localized: "library.card.launcher"))
-        }
-        if item.source == .steam {
-            parts.append(String(localized: "library.source.steam"))
+        // With more than one bottle the bottle stands in for the source: with a
+        // game in a bottle of its own and Steam in several, it is what tells
+        // two cards apart.
+        if let bottleName {
+            parts.append(bottleName)
+        } else {
+            if item.isLauncher {
+                parts.append(String(localized: "library.card.launcher"))
+            }
+            if item.source == .steam {
+                parts.append(String(localized: "library.source.steam"))
+            }
         }
         if let lastPlayed {
             parts.append(lastPlayed.formatted(.relative(presentation: .named)))
         } else {
             parts.append(String(localized: "library.card.neverRun"))
-        }
-        if let bottleName {
-            parts.append(bottleName)
         }
         return parts.joined(separator: " · ")
     }
