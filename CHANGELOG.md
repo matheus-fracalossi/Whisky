@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Runtimes per bottle: a bottle can run on a runtime other than the standard
+  one (`BottleSettings.runtimeVersion`), installed beside it in
+  `Runtimes/<version>`. Launches, registry writes, wineserver, DXVK and DXMT
+  deployment, the GPTK payload and what Recommended resolves to all follow the
+  bottle's runtime; a bottle whose runtime is gone falls back to the standard
+  one. Importing GPTK deploys it into every capable runtime.
+- Game setup: a game whose configuration needs more than settings gets a
+  bottle of its own. Its library card shows **Set Up**, and starting it opens a
+  checklist instead of a launch that would only crash: install the runtime the
+  game was validated on, import Apple's Game Porting Toolkit, create the game's
+  bottle on that runtime with its settings, registry values and per-executable
+  DLL overrides, install Steam in it, move the installed game over from the
+  bottle it was in (no second download), and log in. Every other bottle is left
+  as it was. Driven by new game database fields (`requiredRuntime`,
+  `requiresGPTK`, `registryValues`, and `metal4Enabled` / `metalFX` settings),
+  so nothing in the app is specific to one game.
+- Resident Evil 2 (Steam, DirectX 12 through D3DMetal) in the game database:
+  runtime 4.0.0 (CrossOver 25 / wine 10), since the wine 11 runtimes crash RE
+  Engine; the ffmpeg Media Foundation source, since the GStreamer one fails on
+  the video opened when a cutscene ends; Steam's overlay kept out of `re2.exe`.
+  `docs/ResidentEvil2.md` explains each step, and `scripts/re2-setup.sh` does
+  the same from the terminal.
+- Runtime fixups: runtime 4.0.0-beta.2 links glib, ffmpeg and a few others
+  against a bundled libiconv that only exports `_libiconv*`, so GStreamer and
+  winedmo never load and any game video crashes. Installing it for a game now
+  relinks those libraries against the system libiconv in place (the Mach-O load
+  command is rewritten and the library re-signed), with no developer tools
+  needed.
+
 ### Fixed
 - Removing a stale native dxgi.dll from a bottle now puts Wine's own marked
   builtin copy back in its place. Wine's loader only finds a builtin through

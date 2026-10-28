@@ -38,6 +38,7 @@ struct GameDBDirectX12OnlyTests {
         "monster-hunter-wilds",
         "persona-3-reload",
         "red-dead-redemption-2",
+        "resident-evil-2",
         "starfield",
         "street-fighter-6",
         "talos-principle-2"

@@ -117,9 +117,10 @@ public extension Wine {
         descendantExecutables: [String] = [],
         descendantLaunchers: [LauncherType] = [],
         recommendedBackend: GraphicsBackend? = nil,
-        builtinD3D12IsD3DMetal: Bool = GPTKImporter.isDeployed(),
+        builtinD3D12IsD3DMetal: Bool? = nil,
         writer: DLLOverrideWriter = { try await syncDLLOverrides(bottle: $0, scopes: $1) }
     ) async throws {
+        let builtinD3D12IsD3DMetal = builtinD3D12IsD3DMetal ?? bottle.runtime.isGPTKDeployed
         let bottleOverrides = constructWineEnvironment(
             for: bottle, recommendedBackend: recommendedBackend, builtinD3D12IsD3DMetal: builtinD3D12IsD3DMetal
         )["WINEDLLOVERRIDES"] ?? ""
@@ -224,8 +225,9 @@ public extension Wine {
         bottle: Bottle,
         userOverrides: ProgramOverrides? = nil,
         recommendedBackend: GraphicsBackend? = nil,
-        builtinD3D12IsD3DMetal: Bool = GPTKImporter.isDeployed()
+        builtinD3D12IsD3DMetal: Bool? = nil
     ) -> String {
+        let builtinD3D12IsD3DMetal = builtinD3D12IsD3DMetal ?? bottle.runtime.isGPTKDeployed
         var pinned = userOverrides ?? ProgramOverrides()
         if pinned.graphicsBackend == nil || pinned.graphicsBackend == .recommended {
             pinned.graphicsBackend = .dxvk

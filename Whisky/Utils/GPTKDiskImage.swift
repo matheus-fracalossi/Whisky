@@ -120,4 +120,39 @@ enum GPTKDiskImage {
         try? process.run()
         process.waitUntilExit()
     }
+
+    /// Imports Apple's evaluation environment from a disk image or folder into
+    /// the GPTK store and deploys it when the runtime can run it. Blocking:
+    /// call it off the main actor.
+    ///
+    /// Deployment into the Wine tree is gated: on an engine build without GPTK
+    /// exception-unwind support the payload would crash every process that
+    /// touches it.
+    static func importAndDeploy(from url: URL) throws {
+        let accessing = url.startAccessingSecurityScopedResource()
+        defer {
+            if accessing {
+                url.stopAccessingSecurityScopedResource()
+            }
+        }
+
+        var mounts: [URL] = []
+        defer {
+            for mount in mounts.reversed() {
+                detach(mount)
+            }
+        }
+        let resolved = try resolvePayload(at: url)
+        mounts = resolved.mounts
+        let payload = try GPTKImporter.validatePayload(at: resolved.libRoot)
+        try GPTKImporter.importPayload(payload)
+        if GPTKImporter.isRuntimeGPTKCapable() {
+            try GPTKImporter.deployStoredPayload()
+        }
+        // Runtimes installed for games get it too; the bottles on them are the
+        // ones most likely to need D3DMetal.
+        for runtime in WineRuntime.gameRuntimes() {
+            runtime.deployGPTKIfCapable()
+        }
+    }
 }

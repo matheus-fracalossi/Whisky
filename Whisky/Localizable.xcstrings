@@ -53906,6 +53906,502 @@
         }
       }
     },
+    "gameRuntime.error.checksum" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The downloaded engine does not match its expected checksum, so it was not installed."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The downloaded engine does not match its expected checksum, so it was not installed."
+          }
+        }
+      }
+    },
+    "gameRuntime.error.layout" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The downloaded engine is not laid out as expected, so it was not installed."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The downloaded engine is not laid out as expected, so it was not installed."
+          }
+        }
+      }
+    },
+    "gameSetup.bottle.apply" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apply"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apply"
+          }
+        }
+      }
+    },
+    "gameSetup.bottle.create" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create Bottle"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create Bottle"
+          }
+        }
+      }
+    },
+    "gameSetup.bottle.detail" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Created on that engine, with the graphics, sync and video playback settings the game was tested with."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Created on that engine, with the graphics, sync and video playback settings the game was tested with."
+          }
+        }
+      }
+    },
+    "gameSetup.bottle.title %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Bottle for %@"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A Bottle for %@"
+          }
+        }
+      }
+    },
+    "gameSetup.done" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done"
+          }
+        }
+      }
+    },
+    "gameSetup.failed" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Setup Didn’t Finish"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Setup Didn’t Finish"
+          }
+        }
+      }
+    },
+    "gameSetup.game.install" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Install the game from Steam in this bottle after logging in."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Install the game from Steam in this bottle after logging in."
+          }
+        }
+      }
+    },
+    "gameSetup.game.move %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Moves the installed game out of “%@”, so it does not download again. Quit Steam in both bottles first."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Moves the installed game out of “%@”, so it does not download again. Quit Steam in both bottles first."
+          }
+        }
+      }
+    },
+    "gameSetup.game.moveButton" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move Game"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move Game"
+          }
+        }
+      }
+    },
+    "gameSetup.game.steamRunning" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quit Steam and any game in “%@” before moving the game."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quit Steam and any game in “%@” before moving the game."
+          }
+        }
+      }
+    },
+    "gameSetup.game.title %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ in That Bottle"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ in That Bottle"
+          }
+        }
+      }
+    },
+    "gameSetup.gptk.detail" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple does not allow Whisky to include it. Sign in with your Apple ID, download the latest Game Porting Toolkit, then import the .dmg here."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple does not allow Whisky to include it. Sign in with your Apple ID, download the latest Game Porting Toolkit, then import the .dmg here."
+          }
+        }
+      }
+    },
+    "gameSetup.gptk.download" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Download from Apple"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Download from Apple"
+          }
+        }
+      }
+    },
+    "gameSetup.gptk.import" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import…"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import…"
+          }
+        }
+      }
+    },
+    "gameSetup.gptk.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Game Porting Toolkit"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Game Porting Toolkit"
+          }
+        }
+      }
+    },
+    "gameSetup.later" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not Now"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not Now"
+          }
+        }
+      }
+    },
+    "gameSetup.login.check" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I’ve Logged In"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I’ve Logged In"
+          }
+        }
+      }
+    },
+    "gameSetup.login.detail" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Steam in the game's bottle and log in with your account. Whisky never sees your password."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Steam in the game's bottle and log in with your account. Whisky never sees your password."
+          }
+        }
+      }
+    },
+    "gameSetup.login.open" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Steam"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Steam"
+          }
+        }
+      }
+    },
+    "gameSetup.login.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Log In to Steam"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Log In to Steam"
+          }
+        }
+      }
+    },
+    "gameSetup.play" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Play"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Play"
+          }
+        }
+      }
+    },
+    "gameSetup.runtime.detail %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Downloads about 450 MB, verifies it and fixes a known defect in it. Only %@'s bottle uses it; every other bottle keeps its engine."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Downloads about 450 MB, verifies it and fixes a known defect in it. Only %@'s bottle uses it; every other bottle keeps its engine."
+          }
+        }
+      }
+    },
+    "gameSetup.runtime.install" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Install Engine"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Install Engine"
+          }
+        }
+      }
+    },
+    "gameSetup.runtime.title %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wine Engine %@"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wine Engine %@"
+          }
+        }
+      }
+    },
+    "gameSetup.steam.detail" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installs Valve's Steam client into the game's bottle."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installs Valve's Steam client into the game's bottle."
+          }
+        }
+      }
+    },
+    "gameSetup.steam.install" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Install Steam"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Install Steam"
+          }
+        }
+      }
+    },
+    "gameSetup.steam.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Steam in That Bottle"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Steam in That Bottle"
+          }
+        }
+      }
+    },
+    "gameSetup.subtitle %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ runs best in a bottle of its own, set up the way it was tested. Your other bottles and games stay as they are."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ runs best in a bottle of its own, set up the way it was tested. Your other bottles and games stay as they are."
+          }
+        }
+      }
+    },
+    "gameSetup.title %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set Up %@"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set Up %@"
+          }
+        }
+      }
+    },
     "gamedb.empty.noData" : {
       "localizations" : {
         "ar" : {
@@ -58531,6 +59027,22 @@
         }
       }
     },
+    "library.card.needsSetup" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set Up"
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set Up"
+          }
+        }
+      }
+    },
     "locale.auto" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -59392,6 +59904,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Biblioteka"
+          }
+        }
+      }
+    },
+    "runtimeFixup.error.resignFailed" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not re-sign %@ after fixing it."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not re-sign %@ after fixing it."
           }
         }
       }
@@ -84088,6 +84616,70 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "正在啟動 Steam…"
+          }
+        }
+      }
+    },
+    "steamSetup.error.alreadyInstalled" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The game's bottle already has a copy of the game."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The game's bottle already has a copy of the game."
+          }
+        }
+      }
+    },
+    "steamSetup.error.gameNotFound" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The game is no longer installed in that bottle."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The game is no longer installed in that bottle."
+          }
+        }
+      }
+    },
+    "steamSetup.error.installerTimedOut" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Steam's installer did not finish within five minutes."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Steam's installer did not finish within five minutes."
+          }
+        }
+      }
+    },
+    "steamSetup.error.steamMissing" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Steam is not installed in the game's bottle."
+          }
+        },
+        "en-GB" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Steam is not installed in the game's bottle."
           }
         }
       }

@@ -35,6 +35,7 @@ struct GPTKSettingsSection: View {
 
     var body: some View {
         Section {
+
             if let storedRecord {
                 LabeledContent("settings.gptk.version", value: storedRecord.gptkVersion)
                 if let storeFailure {
@@ -120,28 +121,8 @@ struct GPTKSettingsSection: View {
     private func importPayload(from url: URL) {
         importing = true
         Task.detached(priority: .userInitiated) {
-            let accessing = url.startAccessingSecurityScopedResource()
-            defer {
-                if accessing {
-                    url.stopAccessingSecurityScopedResource()
-                }
-            }
-
-            var mounts: [URL] = []
             do {
-                let resolved = try GPTKDiskImage.resolvePayload(at: url)
-                mounts = resolved.mounts
-                let payload = try GPTKImporter.validatePayload(at: resolved.libRoot)
-                try GPTKImporter.importPayload(payload)
-                // Deployment into the Wine tree is gated: on an engine build
-                // without GPTK exception-unwind support the payload would
-                // crash every process that touches it.
-                if GPTKImporter.isRuntimeGPTKCapable() {
-                    try GPTKImporter.deployStoredPayload()
-                }
-                for mount in mounts.reversed() {
-                    GPTKDiskImage.detach(mount)
-                }
+                try GPTKDiskImage.importAndDeploy(from: url)
                 await MainActor.run {
                     importing = false
                     storeFailure = nil
@@ -151,9 +132,6 @@ struct GPTKSettingsSection: View {
                     BottleVM.shared.migrateLauncherBackends()
                 }
             } catch {
-                for mount in mounts.reversed() {
-                    GPTKDiskImage.detach(mount)
-                }
                 await MainActor.run {
                     importing = false
                     importError = error.localizedDescription

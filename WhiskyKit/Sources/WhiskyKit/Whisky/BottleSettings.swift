@@ -71,6 +71,9 @@ public struct BottleInfo: Codable, Equatable {
     var pins: [PinnedProgram] = []
     /// URLs of programs that should be hidden from the program list.
     var blocklist: [URL] = []
+    /// The game database entry this bottle was made for (``GameSetup``), or
+    /// `nil` for a general bottle.
+    var dedicatedGameID: String?
 
     /// Creates a new BottleInfo with default values.
     public init() {}
@@ -80,6 +83,7 @@ public struct BottleInfo: Codable, Equatable {
         self.name = try container.decodeIfPresent(String.self, forKey: .name) ?? "Bottle"
         self.pins = try container.decodeIfPresent([PinnedProgram].self, forKey: .pins) ?? []
         self.blocklist = try container.decodeIfPresent([URL].self, forKey: .blocklist) ?? []
+        self.dedicatedGameID = try container.decodeIfPresent(String.self, forKey: .dedicatedGameID)
     }
 }
 
@@ -270,6 +274,18 @@ public struct BottleSettings: Codable, Equatable {
     public var avxEnabled: Bool {
         get { wineConfig.avxEnabled }
         set { wineConfig.avxEnabled = newValue }
+    }
+
+    /// The game database entry this bottle was made for; `nil` for a general one.
+    public var dedicatedGameID: String? {
+        get { info.dedicatedGameID }
+        set { info.dedicatedGameID = newValue }
+    }
+
+    /// The runtime version this bottle runs on; `nil` for the standard one.
+    public var runtimeVersion: String? {
+        get { wineConfig.runtimeVersion }
+        set { wineConfig.runtimeVersion = newValue }
     }
 
     /// The list of pinned programs for quick access.

@@ -57,8 +57,12 @@ extension Wine {
         programSettings: ProgramSettings? = nil,
         gameProfileEnvironment: [String: String] = [:],
         recommendedBackend: GraphicsBackend? = nil,
-        builtinD3D12IsD3DMetal: Bool = GPTKImporter.isDeployed()
+        builtinD3D12IsD3DMetal: Bool? = nil
     ) -> [String: String] {
+        // Resolved against the bottle's own runtime: a bottle set to a game's
+        // runtime can have D3DMetal while the standard one does not.
+        let recommendedBackend = recommendedBackend ?? bottle.runtime.recommendedBackend()
+        let builtinD3D12IsD3DMetal = builtinD3D12IsD3DMetal ?? bottle.runtime.isGPTKDeployed
         var builder = EnvironmentBuilder()
         var dllResolver = DLLOverrideResolver(managed: [], bottleCustom: [], programCustom: [])
 

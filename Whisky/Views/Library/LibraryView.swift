@@ -78,6 +78,15 @@ struct LibraryView: View {
         .onDisappear {
             model.stopTracking()
         }
+        .sheet(
+            item: $model.setupRequest,
+            onDismiss: { Task { await model.reload(bottles: bottles) } },
+            content: { request in
+                GameSetupSheet(plan: request.plan, sourceBottle: request.sourceBottle) { gameBottle in
+                    model.launchAfterSetup(request, in: gameBottle)
+                }
+            }
+        )
         .alert(
             "library.launch.failed",
             isPresented: Binding(

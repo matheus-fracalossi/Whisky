@@ -6003,6 +6003,98 @@
         "lastUpdated": "2026-04-30T00:00:00Z",
         "referenceURL": "https://github.com/whisky-app/whisky/issues/1119"
       }
+    },
+    {
+      "id": "resident-evil-2",
+      "title": "Resident Evil 2",
+      "aliases": [
+        "RE2",
+        "RE2 Remake",
+        "Biohazard RE:2"
+      ],
+      "subtitle": "Capcom",
+      "store": "steam",
+      "steamAppId": 883710,
+      "rating": "playable",
+      "exeNames": [
+        "re2.exe"
+      ],
+      "pathPatterns": [
+        "resident evil 2  biohazard re2"
+      ],
+      "antiCheat": null,
+      "constraints": {
+        "cpuArchitectures": [
+          "arm64"
+        ],
+        "minMacOSVersion": "15.0.0",
+        "minWineVersion": "10.0"
+      },
+      "variants": [
+        {
+          "id": "d3dmetal-wine10",
+          "label": "D3DMetal (DirectX 12)",
+          "isDefault": true,
+          "whenToUse": "The current Steam build, which only renders through DirectX 12",
+          "rationale": [
+            "RE Engine dies within seconds on the wine 11 runtimes (os_unfair_lock and libdispatch aborts, stack cookie fail-fasts); the CrossOver 25 / wine 10 runtime runs it",
+            "That runtime build needs its libiconv linkage fixed or GStreamer and winedmo never load, and the game crashes on its first video",
+            "The GStreamer media source fails on the video opened when a cutscene ends or is skipped; the ffmpeg winedmo source handles it",
+            "Steam injects its overlay renderer even with the overlay disabled for the game; it is kept out of re2.exe",
+            "vcrun2022 is installed by Steam's own first-run setup for the game"
+          ],
+          "settings": {
+            "graphicsBackend": "recommended",
+            "enhancedSync": "msync",
+            "avxEnabled": false,
+            "metal4Enabled": false,
+            "metalFX": false
+          },
+          "environmentVariables": {},
+          "dllOverrides": [
+            {
+              "dllName": "gameoverlayrenderer64",
+              "mode": ""
+            }
+          ],
+          "winetricksVerbs": [],
+          "registryValues": [
+            {
+              "key": "HKCU\\Software\\Wine\\MediaFoundation",
+              "name": "DisableGstByteStreamHandler",
+              "type": "REG_DWORD",
+              "data": "1"
+            }
+          ],
+          "requiredRuntime": {
+            "version": "4.0.0",
+            "downloadURL": "https://github.com/frankea/Whisky/releases/download/v4.0.0-beta.2/Libraries.tar.gz",
+            "sha256": "492b1304172de5d51f8026398a90255ecb99a4fd0409df0bc674fdaad642c2b3",
+            "fixups": [
+              "systemLibiconv"
+            ],
+            "reason": "GPTK-capable CrossOver 25 / wine 10 runtime; the wine 11 runtimes crash RE Engine"
+          },
+          "requiresGPTK": true,
+          "testedWith": {
+            "lastTestedAt": "2026-10-28T00:00:00Z",
+            "macOSVersion": "26.6.2",
+            "wineVersion": "10.0",
+            "whiskyVersion": "3.7.0",
+            "cpuArchitecture": "arm64"
+          }
+        }
+      ],
+      "notes": [
+        "Metal 4 and MetalFX are off because the working runs had them off; they have not been retested on this runtime"
+      ],
+      "knownIssues": [],
+      "provenance": {
+        "source": "community-reference",
+        "author": "Whisky Community",
+        "lastUpdated": "2026-10-28T00:00:00Z",
+        "referenceURL": "https://github.com/Sikarugir-App/Sikarugir/issues/178"
+      }
     }
   ]
 }

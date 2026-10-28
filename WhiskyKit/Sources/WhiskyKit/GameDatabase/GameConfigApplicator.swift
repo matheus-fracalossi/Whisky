@@ -246,6 +246,24 @@ public enum GameConfigApplicator {
             ))
         }
 
+        if let metal4 = settings.metal4Enabled, metal4 != bottle.settings.metal4Enabled {
+            changes.append(ConfigChange(
+                category: "Graphics",
+                settingName: "Metal 4",
+                currentValue: bottle.settings.metal4Enabled ? "Enabled" : "Disabled",
+                newValue: metal4 ? "Enabled" : "Disabled"
+            ))
+        }
+
+        if let metalFX = settings.metalFX, metalFX != bottle.settings.metalFX {
+            changes.append(ConfigChange(
+                category: "Graphics",
+                settingName: "MetalFX",
+                currentValue: bottle.settings.metalFX ? "Enabled" : "Disabled",
+                newValue: metalFX ? "Enabled" : "Disabled"
+            ))
+        }
+
         // Performance settings
         if let enhancedSync = settings.enhancedSync, enhancedSync != bottle.settings.enhancedSync {
             changes.append(ConfigChange(
@@ -364,6 +382,14 @@ public enum GameConfigApplicator {
 
         if let avxEnabled = settings.avxEnabled {
             bottle.settings.avxEnabled = avxEnabled
+        }
+
+        if let metal4Enabled = settings.metal4Enabled {
+            bottle.settings.metal4Enabled = metal4Enabled
+        }
+
+        if let metalFX = settings.metalFX {
+            bottle.settings.metalFX = metalFX
         }
     }
 

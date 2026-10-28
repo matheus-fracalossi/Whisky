@@ -49,6 +49,14 @@ struct LibraryRow: Identifiable {
     var id: String { item.id }
 }
 
+/// A game whose setup the library is asking the user to finish before it starts.
+struct GameSetupRequest: Identifiable {
+    let id = UUID()
+    let plan: GameSetupPlan
+    /// The bottle the game is installed in now.
+    let sourceBottle: Bottle
+}
+
 /// Builds the library and owns what is currently starting or running.
 ///
 /// A view model rather than view state because the running half comes from a
@@ -61,6 +69,10 @@ final class LibraryModel: ObservableObject {
     @Published private(set) var rows: [LibraryRow] = []
     @Published var launchError: String?
     @Published var toast: ToastData?
+    /// Set when a launch stops at a game's setup instead.
+    @Published var setupRequest: GameSetupRequest?
+    /// Entries whose game is installed but not set up yet.
+    @Published private var needsSetup: Set<String> = []
 
     /// App IDs with a launch in flight, per bottle.
     @Published private var steamLaunching: [URL: Set<Int>] = [:]
@@ -95,6 +107,8 @@ final class LibraryModel: ObservableObject {
                 .running
             } else if steamLaunching[entry.bottleURL]?.contains(appID) == true {
                 .launching
+            } else if needsSetup.contains(entry.id) {
+                .needsSetup
             } else {
                 .idle
             }
@@ -110,8 +124,10 @@ final class LibraryModel: ObservableObject {
     /// it inside a card turns scrolling into disk traffic.
     func reload(bottles: [Bottle]) async {
         var built: [LibraryRow] = []
+        var pendingSetup: Set<String> = []
         let showBottleName = bottles.count > 1
         let routed = GameRouting().lastLaunches()
+        let gameDB = GameDBLoader.loadDefaults()
 
         for bottle in bottles {
             let url = bottle.url
@@ -122,6 +138,11 @@ final class LibraryModel: ObservableObject {
             let steam = await Task.detached { SteamLibrarySource.entries(inBottleAt: url) }.value
 
             for item in LibraryCatalogue.merge([pinned, steam]) {
+                if case let .steam(appID) = item.launch,
+                   let plan = GameSetup.plan(steamAppId: appID, entries: gameDB),
+                   needsSetup(plan, installedIn: bottle) {
+                    pendingSetup.insert(item.id)
+                }
                 built.append(
                     LibraryRow(
                         item: item,
@@ -135,6 +156,13 @@ final class LibraryModel: ObservableObject {
         }
 
         rows = sorted(built)
+        needsSetup = pendingSetup
+    }
+
+    /// Whether a game that needs its own bottle is not running from a finished one.
+    private func needsSetup(_ plan: GameSetupPlan, installedIn bottle: Bottle) -> Bool {
+        guard bottle.settings.dedicatedGameID == plan.entry.id else { return true }
+        return !GameSetup.status(of: plan, dedicatedBottle: bottle).isComplete
     }
 
     /// When an entry was last started in Whisky.
@@ -190,6 +218,17 @@ final class LibraryModel: ObservableObject {
 // MARK: - Launching
 
 extension LibraryModel {
+    /// Starts the game a finished setup was opened for, in its own bottle.
+    func launchAfterSetup(_ request: GameSetupRequest, in gameBottle: Bottle) {
+        guard let appID = request.plan.entry.steamAppId,
+              let game = SteamLibrary.enumerate(bottleURL: gameBottle.url).first(where: { $0.appId == appID })
+        else {
+            launchError = String(localized: "library.launch.steamGameMissing")
+            return
+        }
+        orchestrator(for: gameBottle).launch(game)
+    }
+
     func launch(_ row: LibraryRow, bottles: [Bottle]) {
         guard let bottle = bottles.first(where: { $0.url == row.item.bottleURL }) else { return }
 
@@ -197,6 +236,13 @@ extension LibraryModel {
         case let .program(url):
             launchProgram(at: url, in: bottle)
         case let .steam(appID):
+            // A game that needs a runtime, GPTK or registry values it does not
+            // have yet would only crash; the setup sheet gets it there first.
+            if let plan = GameSetup.plan(steamAppId: appID),
+               needsSetup(plan, installedIn: bottle) {
+                setupRequest = GameSetupRequest(plan: plan, sourceBottle: bottle)
+                return
+            }
             let games = SteamLibrary.enumerate(bottleURL: bottle.url)
             guard let game = games.first(where: { $0.appId == appID }) else {
                 launchError = String(localized: "library.launch.steamGameMissing")

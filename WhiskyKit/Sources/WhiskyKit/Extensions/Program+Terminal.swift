@@ -108,7 +108,7 @@ extension Program {
         let launch = try await prepareLaunch(
             args: args, overrideWriter: overrideWriter, importer: importer, bootstrapper: bootstrapper
         )
-        let command = Wine.generateRunCommand(for: launch)
+        let command = Wine.generateRunCommand(for: launch, wineBinary: bottle.runtime.wineBinary)
 
         let scriptURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("whisky-run-\(UUID().uuidString).sh")

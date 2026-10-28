@@ -33,6 +33,9 @@ enum LibraryEntryState: Equatable {
     case launching
     /// It has a process of its own in ``ProcessRegistry``.
     case running
+    /// Installed, but its configuration needs a one-time setup first
+    /// (``GameSetup``); starting it opens the setup instead.
+    case needsSetup
 }
 
 /// One library entry, coloured by its own icon.
@@ -198,6 +201,16 @@ struct LibraryCard: View {
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
                 .cardGlass(.capsule)
+        case .needsSetup:
+            // Always shown, not only on hover: it is why Play opens a sheet.
+            Label("library.card.needsSetup", systemImage: "wrench.and.screwdriver.fill")
+                .labelStyle(.titleAndIcon)
+                .font(.caption2)
+                .imageScale(.small)
+                .foregroundStyle(.orange)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .cardGlass(.capsule, interactive: true)
         case .idle:
             if isActive {
                 Image(systemName: "play.fill")

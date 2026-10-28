@@ -154,11 +154,32 @@ final class BottleVM: ObservableObject {
         return newBottleDir
     }
 
+    /// Creates a bottle for one game, on the runtime its configuration needs,
+    /// and returns it once its prefix exists (``GameSetup``).
+    func createGameBottle(name: String, runtimeVersion: String?, gameID: String) async throws -> Bottle {
+        let bottleURL = UserDefaults.standard.url(forKey: "defaultBottleLocation") ?? BottleData.defaultBottleDir
+        let request = BottleCreationRequest(
+            bottleName: name,
+            winVersion: .win10,
+            bottleURL: bottleURL,
+            newBottleDir: bottleURL.appending(path: UUID().uuidString),
+            runtimeVersion: runtimeVersion,
+            dedicatedGameID: gameID
+        )
+        await createBottleTask(request: request)
+        guard let bottle = bottles.first(where: { $0.url == request.newBottleDir && $0.isAvailable }) else {
+            throw BottleCreationError.directoryCreationFailed
+        }
+        return bottle
+    }
+
     private struct BottleCreationRequest {
         let bottleName: String
         let winVersion: WinVersion
         let bottleURL: URL
         let newBottleDir: URL
+        var runtimeVersion: String?
+        var dedicatedGameID: String?
     }
 
     private func createBottleTask(request: BottleCreationRequest) async {
@@ -188,6 +209,10 @@ final class BottleVM: ObservableObject {
             // Configure bottle settings (all on MainActor)
             createdBottle.settings.windowsVersion = request.winVersion
             createdBottle.settings.name = request.bottleName
+            // Before the first Wine run, which creates the prefix with
+            // whichever runtime the bottle is set to.
+            createdBottle.settings.runtimeVersion = request.runtimeVersion
+            createdBottle.settings.dedicatedGameID = request.dedicatedGameID
 
             // Wine operations are async and can run on background threads
             try await Wine.changeWinVersion(bottle: createdBottle, win: request.winVersion)

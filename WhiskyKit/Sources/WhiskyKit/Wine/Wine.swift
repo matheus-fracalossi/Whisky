@@ -113,10 +113,10 @@ public class Wine {
     /// Run a `wine` process with the given arguments and environment variables returning a stream of output
     private static func runWineProcess(
         name: String? = nil, args: [String], environment: [String: String] = [:],
-        fileHandle: FileHandle?
+        executableURL: URL = wineBinary, fileHandle: FileHandle?
     ) throws -> AsyncStream<ProcessOutput> {
         try runProcess(
-            name: name, args: args, environment: environment, executableURL: wineBinary,
+            name: name, args: args, environment: environment, executableURL: executableURL,
             fileHandle: fileHandle
         )
     }
@@ -156,7 +156,7 @@ public class Wine {
         let wineEnvironment = constructWineEnvironment(for: bottle, environment: environment)
 
         return try runProcess(
-            name: name, args: args, environment: wineEnvironment, executableURL: wineBinary,
+            name: name, args: args, environment: wineEnvironment, executableURL: bottle.runtime.wineBinary,
             fileHandle: fileHandle
         )
     }
@@ -184,7 +184,8 @@ public class Wine {
         let wineserverEnvironment = constructWineEnvironment(for: bottle, environment: environment)
 
         return try runProcess(
-            name: name, args: args, environment: wineserverEnvironment, executableURL: wineserverBinary,
+            name: name, args: args, environment: wineserverEnvironment,
+            executableURL: bottle.runtime.wineserverBinary,
             fileHandle: fileHandle
         )
     }
@@ -363,7 +364,7 @@ public class Wine {
         for await output in try runProcess(
             name: programName,
             args: launch.arguments,
-            environment: launch.environment, executableURL: wineBinary,
+            environment: launch.environment, executableURL: bottle.runtime.wineBinary,
             fileHandle: fileHandle
         ) {
             onOutput?(output)
@@ -433,8 +434,8 @@ public class Wine {
         overridesApplyToDescendants: Bool = false,
         descendantExecutables: [String] = [],
         descendantLaunchers: [LauncherType] = [],
-        recommendedBackend: GraphicsBackend = GraphicsBackendResolver.resolve(),
-        builtinD3D12IsD3DMetal: Bool = GPTKImporter.isDeployed(),
+        recommendedBackend: GraphicsBackend? = nil,
+        builtinD3D12IsD3DMetal: Bool? = nil,
         overrideWriter: DLLOverrideWriter = { try await syncDLLOverrides(bottle: $0, scopes: $1) },
         importer: RegistryImporter = { try await importRegistry(document: $0, bottle: $1) }
     ) async throws -> PreparedLaunch {
@@ -444,6 +445,11 @@ public class Wine {
         // before the program starts, since a process reads the aliases once, and
         // like every Wine process it reconciles the user profile before starting.
         await syncCJKFontReplacements(bottle: bottle, importer: importer)
+
+        // Everything below resolves against the bottle's own runtime.
+        let runtime = bottle.runtime
+        let recommendedBackend = recommendedBackend ?? runtime.recommendedBackend()
+        let builtinD3D12IsD3DMetal = builtinD3D12IsD3DMetal ?? runtime.isGPTKDeployed
 
         // The effective backend for this launch: a program-level override wins
         // over the bottle setting, and `.recommended` resolves to its concrete
@@ -460,7 +466,7 @@ public class Wine {
         let steeredLauncher = overridesApplyToDescendants ? nil : launcher
         let effectiveBackendChoice = programOverrides?.graphicsBackend ?? bottle.settings.graphicsBackend
         let effectiveBackend = if effectiveBackendChoice == .recommended {
-            steeredLauncher.map { GraphicsBackendResolver.resolve(for: $0) } ?? recommendedBackend
+            steeredLauncher.map { runtime.recommendedBackend(for: $0) } ?? recommendedBackend
         } else {
             effectiveBackendChoice
         }
@@ -587,7 +593,7 @@ public class Wine {
         WineUserProfile.reconcile(bottleURL: bottle.url)
         let wineEnv = constructWineEnvironment(for: bottle, environment: environment)
         return shellCommand(
-            "\(wineBinary.esc) start /unix \(url.esc) \(escapedArgs)", environment: wineEnv
+            "\(bottle.runtime.wineBinary.esc) start /unix \(url.esc) \(escapedArgs)", environment: wineEnv
         )
     }
 
@@ -762,7 +768,9 @@ public class Wine {
         WineUserProfile.reconcile(bottleURL: bottle.url)
         let wineEnvironment = constructWineEnvironment(for: bottle, environment: environment)
 
-        for await output in try runWineProcess(args: args, environment: wineEnvironment, fileHandle: fileHandle) {
+        for await output in try runWineProcess(
+            args: args, environment: wineEnvironment, executableURL: bottle.runtime.wineBinary, fileHandle: fileHandle
+        ) {
             switch output {
             case .started, .terminated:
                 break
@@ -874,9 +882,9 @@ public class Wine {
     @MainActor
     public static func killBottleAndWait(bottle: Bottle, timeout: TimeInterval = 5) {
         let process = Process()
-        process.executableURL = wineserverBinary
+        process.executableURL = bottle.runtime.wineserverBinary
         process.arguments = ["-k"]
-        process.currentDirectoryURL = wineserverBinary.deletingLastPathComponent()
+        process.currentDirectoryURL = bottle.runtime.binFolder
         process.environment = constructWineEnvironment(for: bottle, environment: [:])
         process.standardOutput = FileHandle.nullDevice
         process.standardError = FileHandle.nullDevice
@@ -907,13 +915,17 @@ public class Wine {
     public static func enableDXVK(bottle: Bottle) throws {
         try FileManager.default.replaceDLLs(
             in: bottle.url.appending(path: "drive_c").appending(path: "windows").appending(path: "system32"),
-            withContentsIn: Wine.dxvkFolder.appending(path: "x64")
+            withContentsIn: bottle.runtime.dxvkFolder.appending(path: "x64")
         )
         try FileManager.default.replaceDLLs(
             in: bottle.url.appending(path: "drive_c").appending(path: "windows").appending(path: "syswow64"),
-            withContentsIn: Wine.dxvkFolder.appending(path: "x32")
+            withContentsIn: bottle.runtime.dxvkFolder.appending(path: "x32")
         )
-        reconcileDXGIForDXVK(prefixRoot: bottle.url)
+        reconcileDXGIForDXVK(
+            prefixRoot: bottle.url,
+            gptkPayloadIsDeployed: bottle.runtime.isGPTKDeployed,
+            libraryFolder: bottle.runtime.libraryFolder
+        )
     }
 
     /// Reconciles the prefix's `dxgi.dll` with the GPTK payload state, keyed on
@@ -1251,7 +1263,7 @@ public class Wine {
     ///   graphics backend is `.dxmt`.
     @MainActor
     public static func enableDXMT(bottle: Bottle) throws {
-        try enableDXMT(payloadRoot: Wine.dxmtFolder, prefixRoot: bottle.url)
+        try enableDXMT(payloadRoot: bottle.runtime.dxmtFolder, prefixRoot: bottle.url)
     }
 
     /// Performs the DXMT installation against explicit roots. Factored out of

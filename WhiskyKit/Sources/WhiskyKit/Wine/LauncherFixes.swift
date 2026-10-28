@@ -126,8 +126,9 @@ public enum LauncherFixes {
     // swiftlint:disable:next cyclomatic_complexity
     public static func apply(
         to bottle: Bottle, launcher: LauncherType, force: Bool = false,
-        recommendedBackend: GraphicsBackend = GraphicsBackendResolver.resolve()
+        recommendedBackend: GraphicsBackend? = nil
     ) {
+        let recommendedBackend = recommendedBackend ?? bottle.runtime.recommendedBackend()
         // Enable launcher compatibility mode
         if !bottle.settings.launcherCompatibilityMode || force {
             bottle.settings.launcherCompatibilityMode = true

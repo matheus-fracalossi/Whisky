@@ -175,6 +175,79 @@ public struct Provenance: Codable, Sendable, Equatable {
     }
 }
 
+/// A registry value a configuration writes into the bottle's prefix.
+///
+/// For switches Wine only reads from the registry, such as which Media
+/// Foundation byte stream handler it uses. Written when the game is set up
+/// rather than per launch, so a launch from inside the Steam client sees it too.
+public struct GameRegistryValue: Codable, Sendable, Equatable {
+    /// The full key path (e.g., `HKCU\Software\Wine\MediaFoundation`).
+    public let key: String
+    /// The value name.
+    public let name: String
+    /// The registry type as `reg add` names it (`REG_SZ`, `REG_DWORD`, ...).
+    public let type: String
+    /// The data, as `reg add` takes it.
+    public let data: String
+
+    public init(key: String, name: String, type: String, data: String) {
+        self.key = key
+        self.name = name
+        self.type = type
+        self.data = data
+    }
+}
+
+/// A fix applied to a downloaded runtime before it is installed.
+public enum RuntimeFixup: String, Codable, Sendable, Equatable {
+    /// Relinks libraries that import `_iconv` against the system libiconv;
+    /// see ``RuntimeFixups/relinkBundledIconv(in:)``.
+    case systemLibiconv
+}
+
+/// A specific Wine runtime a configuration variant was validated on.
+///
+/// Whisky has one runtime for every bottle, so meeting this replaces the
+/// installed runtime (kept as a backup) and pins it against update prompts.
+public struct GameRuntimeRequirement: Codable, Sendable, Equatable {
+    /// The runtime version (e.g., "4.0.0").
+    public let version: String
+    /// Where the runtime archive is downloaded from.
+    public let downloadURL: URL
+    /// The archive's SHA-256, checked before anything is installed.
+    public let sha256: String
+    /// Fixes applied to the extracted runtime before it is installed.
+    public let fixups: [RuntimeFixup]
+    /// Why the game needs this runtime, for the setup screen.
+    public let reason: String?
+
+    public init(
+        version: String,
+        downloadURL: URL,
+        sha256: String,
+        fixups: [RuntimeFixup] = [],
+        reason: String? = nil
+    ) {
+        self.version = version
+        self.downloadURL = downloadURL
+        self.sha256 = sha256
+        self.fixups = fixups
+        self.reason = reason
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.version = try container.decode(String.self, forKey: .version)
+        self.downloadURL = try container.decode(URL.self, forKey: .downloadURL)
+        self.sha256 = try container.decode(String.self, forKey: .sha256)
+        // A fixup this build does not know is dropped rather than failing the
+        // whole database load.
+        let names = try container.decodeIfPresent([String].self, forKey: .fixups) ?? []
+        self.fixups = names.compactMap(RuntimeFixup.init(rawValue:))
+        self.reason = try container.decodeIfPresent(String.self, forKey: .reason)
+    }
+}
+
 // MARK: - Variant Settings
 
 /// Settings values within a game configuration variant.
@@ -197,6 +270,10 @@ public struct GameConfigVariantSettings: Codable, Sendable, Equatable {
     public let avxEnabled: Bool?
     /// Whether macOS Sequoia compatibility mode should be enabled.
     public let sequoiaCompatMode: Bool?
+    /// Whether D3DMetal's Metal 4 command encoding should be enabled.
+    public let metal4Enabled: Bool?
+    /// Whether D3DMetal's MetalFX upscaling should be enabled.
+    public let metalFX: Bool?
 
     public init(
         graphicsBackend: GraphicsBackend? = nil,
@@ -205,7 +282,9 @@ public struct GameConfigVariantSettings: Codable, Sendable, Equatable {
         enhancedSync: EnhancedSync? = nil,
         shaderCacheEnabled: Bool? = nil,
         avxEnabled: Bool? = nil,
-        sequoiaCompatMode: Bool? = nil
+        sequoiaCompatMode: Bool? = nil,
+        metal4Enabled: Bool? = nil,
+        metalFX: Bool? = nil
     ) {
         self.graphicsBackend = graphicsBackend
         self.dxvk = dxvk
@@ -214,6 +293,8 @@ public struct GameConfigVariantSettings: Codable, Sendable, Equatable {
         self.shaderCacheEnabled = shaderCacheEnabled
         self.avxEnabled = avxEnabled
         self.sequoiaCompatMode = sequoiaCompatMode
+        self.metal4Enabled = metal4Enabled
+        self.metalFX = metalFX
     }
 
     public init(from decoder: Decoder) throws {
@@ -237,6 +318,8 @@ public struct GameConfigVariantSettings: Codable, Sendable, Equatable {
         self.shaderCacheEnabled = try container.decodeIfPresent(Bool.self, forKey: .shaderCacheEnabled)
         self.avxEnabled = try container.decodeIfPresent(Bool.self, forKey: .avxEnabled)
         self.sequoiaCompatMode = try container.decodeIfPresent(Bool.self, forKey: .sequoiaCompatMode)
+        self.metal4Enabled = try container.decodeIfPresent(Bool.self, forKey: .metal4Enabled)
+        self.metalFX = try container.decodeIfPresent(Bool.self, forKey: .metalFX)
     }
 }
 
@@ -269,6 +352,18 @@ public struct GameConfigVariant: Codable, Sendable, Equatable {
     public let winetricksVerbs: [String]?
     /// Information about when and how this variant was tested.
     public let testedWith: TestedWith?
+    /// Registry values written into the bottle when the game is set up.
+    public let registryValues: [GameRegistryValue]?
+    /// The runtime this variant needs, when the installed one is not enough.
+    public let requiredRuntime: GameRuntimeRequirement?
+    /// Whether the variant needs Apple's GPTK payload imported (D3DMetal).
+    public let requiresGPTK: Bool?
+
+    /// Whether the variant needs more than settings: a runtime, the GPTK
+    /// payload or registry values, which ``GameSetup`` walks the user through.
+    public var needsSetup: Bool {
+        requiredRuntime != nil || requiresGPTK == true || !(registryValues ?? []).isEmpty
+    }
 
     public init(
         id: String,
@@ -280,7 +375,10 @@ public struct GameConfigVariant: Codable, Sendable, Equatable {
         environmentVariables: [String: String]? = nil,
         dllOverrides: [DLLOverrideEntry]? = nil,
         winetricksVerbs: [String]? = nil,
-        testedWith: TestedWith? = nil
+        testedWith: TestedWith? = nil,
+        registryValues: [GameRegistryValue]? = nil,
+        requiredRuntime: GameRuntimeRequirement? = nil,
+        requiresGPTK: Bool? = nil
     ) {
         self.id = id
         self.label = label
@@ -292,6 +390,9 @@ public struct GameConfigVariant: Codable, Sendable, Equatable {
         self.dllOverrides = dllOverrides
         self.winetricksVerbs = winetricksVerbs
         self.testedWith = testedWith
+        self.registryValues = registryValues
+        self.requiredRuntime = requiredRuntime
+        self.requiresGPTK = requiresGPTK
     }
 
     public init(from decoder: Decoder) throws {
@@ -312,6 +413,9 @@ public struct GameConfigVariant: Codable, Sendable, Equatable {
         self.dllOverrides = try container.decodeIfPresent([DLLOverrideEntry].self, forKey: .dllOverrides)
         self.winetricksVerbs = try container.decodeIfPresent([String].self, forKey: .winetricksVerbs)
         self.testedWith = try container.decodeIfPresent(TestedWith.self, forKey: .testedWith)
+        self.registryValues = try container.decodeIfPresent([GameRegistryValue].self, forKey: .registryValues)
+        self.requiredRuntime = try container.decodeIfPresent(GameRuntimeRequirement.self, forKey: .requiredRuntime)
+        self.requiresGPTK = try container.decodeIfPresent(Bool.self, forKey: .requiresGPTK)
     }
 }
 
